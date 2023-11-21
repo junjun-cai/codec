@@ -2,10 +2,10 @@
 // ***                                        CONFIDENTIAL --- CUSTOM STUDIOS                                        ***
 // *********************************************************************************************************************
 // * Auth: ColeCai                                                                                                     *
-// * Date: 2023/11/20 18:52:22                                                                                         *
+// * Date: 2023/11/21 21:21:43                                                                                         *
 // * Proj: codec                                                                                                       *
 // * Pack: ascii85                                                                                                     *
-// * File: ascii855.go                                                                                                 *
+// * File: ascii85.go                                                                                                  *
 // *-------------------------------------------------------------------------------------------------------------------*
 // * Overviews:                                                                                                        *
 // *-------------------------------------------------------------------------------------------------------------------*
@@ -19,173 +19,145 @@ import (
 	"github.com/pkg/errors"
 )
 
-const (
-	StdEncoder  = "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstu"
-	encoderSize = 85
-)
-
-type ascii85Codec struct {
-	encodeMap [85]byte
-	deocdeMap [256]byte
-}
-
 var (
-	errEncoderSize            = errors.New("codec/ascii85: encoding alphabet is not 85-bytes long.")
-	errEncoderRepeatCharacter = errors.New("codec/ascii85: encoding alphabet has repeat character.")
-	errEncoderCharacter       = errors.New("codec/ascii85: encoding alphabet contains newline character.")
-	decodeBase                = [5]uint32{85 * 85 * 85 * 85, 85 * 85 * 85, 85 * 85, 85, 1}
-	invalidInputFormat        = "codec/ascii85: illegal ascii85 data at input byte, pos:%d."
-	StdCodec, _               = NewEncodec(StdEncoder)
+	invalieIllegalFormat = "codec/asii85: illegal ascii85 data at input byte %+v."
+	StdCodec             = NewCodec()
 )
 
-func NewEncodec(encoder string) (base.IEncoding, error) {
-	if len(encoder) != encoderSize {
-		return nil, errEncoderSize
-	}
-	if !base.HasRepeatElem(base.StringToBytes(encoder)) {
-		return nil, errEncoderRepeatCharacter
-	}
-	b := new(ascii85Codec)
-	for k, v := range encoder {
+type ascii85Codec struct{}
 
-		if base.IsIllegalCharacter(v) {
-			return nil, errEncoderCharacter
-		}
-		b.deocdeMap[v] = byte(k)
-	}
-	copy(b.encodeMap[:], encoder)
-	return b, nil
+func NewCodec() base.IEncoding {
+	return &ascii85Codec{}
 }
 
-func (b *ascii85Codec) encodedLen(n int) int {
-	s := n / 4
-	r := n % 4
-	if r > 0 {
-		return s*5 + 5 - (4 - r)
-	} else {
-		return s * 5
-	}
+func (c *ascii85Codec) maxEncodeLen(n int) int {
+	return (n + 3) / 4 * 5
 }
 
-func (b *ascii85Codec) encodeChunk(dst, src []byte) int {
+func (c *ascii85Codec) encode(dst, src []byte) int {
 	if len(src) == 0 {
 		return 0
 	}
-	var val uint32
-	switch len(src) {
-	default:
-		val |= uint32(src[3])
-		fallthrough
-	case 3:
-		val |= uint32(src[2]) << 8
-		fallthrough
-	case 2:
-		val |= uint32(src[1]) << 16
-		fallthrough
-	case 1:
-		val |= uint32(src[0]) << 24
-	}
-	buf := [5]byte{0, 0, 0, 0, 0}
-	for i := 4; i >= 0; i-- {
-		r := val % 85
-		val /= 85
-		buf[i] = b.encodeMap[r]
-	}
-	m := b.encodedLen(len(src))
-	copy(dst[:], buf[:m])
-	return m
-}
-
-func (b *ascii85Codec) encode(dst, src []byte) int {
 	n := 0
 	for len(src) > 0 {
-		if len(src) < 4 {
-			n += b.encodeChunk(dst, src)
-			return n
+		dst[0] = 0
+		dst[1] = 0
+		dst[2] = 0
+		dst[3] = 0
+		dst[4] = 0
+
+		// Unpack 4 bytes into uint32 to repack into base 85 5-byte.
+		var v uint32
+		switch len(src) {
+		default:
+			v |= uint32(src[3])
+			fallthrough
+		case 3:
+			v |= uint32(src[2]) << 8
+			fallthrough
+		case 2:
+			v |= uint32(src[1]) << 16
+			fallthrough
+		case 1:
+			v |= uint32(src[0]) << 24
 		}
-		n += b.encodeChunk(dst[:5], src[:4])
-		src = src[4:]
-		dst = dst[5:]
+
+		// Special case: zero (!!!!!) shortens to z.
+		if v == 0 && len(src) >= 4 {
+			dst[0] = 'z'
+			dst = dst[1:]
+			src = src[4:]
+			n++
+			continue
+		}
+
+		// Otherwise, 5 base 85 digits starting at !.
+		for i := 4; i >= 0; i-- {
+			dst[i] = '!' + byte(v%85)
+			v /= 85
+		}
+
+		// If src was short, discard the low destination bytes.
+		m := 5
+		if len(src) < 4 {
+			m -= 4 - len(src)
+			src = nil
+		} else {
+			src = src[4:]
+		}
+		dst = dst[m:]
+		n += m
 	}
 	return n
 }
 
-func (b *ascii85Codec) Encode(src []byte) ([]byte, error) {
-	dst := make([]byte, b.encodedLen(len(src)))
-	b.encode(dst, src)
-	return dst, nil
+func (c *ascii85Codec) Encode(src []byte) ([]byte, error) {
+	dst := make([]byte, c.maxEncodeLen(len(src)))
+	n := c.encode(dst, src)
+	return dst[:n], nil
 }
 
-func (b *ascii85Codec) decodedLen(n int) int {
-	s := n / 5
-	r := n % 5
-	if r > 0 {
-		return s*4 + 4 - (5 - r)
-	} else {
-		return s * 4
-	}
-}
-
-func (b *ascii85Codec) decodeChunk(dst, src []byte) (int, int) {
-	if len(src) == 0 {
-		return 0, 0
-	}
-	var val uint32
-	m := b.decodedLen(len(src))
-	buf := [5]byte{84, 84, 84, 84, 84}
-	for i := 0; i < len(src); i++ {
-		e := b.deocdeMap[src[i]]
-		if e == 0xFF {
-			return 0, i + 1
+func (c *ascii85Codec) decode(dst, src []byte, flush bool) (ndst, nsrc int, err error) {
+	var v uint32
+	var nb int
+	for i, b := range src {
+		if len(dst)-ndst < 4 {
+			return
 		}
-		buf[i] = e
+		switch {
+		case b <= ' ':
+			continue
+		case b == 'z' && nb == 0:
+			nb = 5
+			v = 0
+		case '!' <= b && b <= 'u':
+			v = v*85 + uint32(b-'!')
+			nb++
+		default:
+			return 0, 0, errors.Errorf(invalieIllegalFormat, i)
+		}
+		if nb == 5 {
+			nsrc = i + 1
+			dst[ndst] = byte(v >> 24)
+			dst[ndst+1] = byte(v >> 16)
+			dst[ndst+2] = byte(v >> 8)
+			dst[ndst+3] = byte(v)
+			ndst += 4
+			nb = 0
+			v = 0
+		}
 	}
-	for i := 0; i < 5; i++ {
-		r := buf[i]
-		val += uint32(r) * decodeBase[i]
-	}
-	switch m {
-	default:
-		dst[3] = byte(val & 0xFF)
-		fallthrough
-	case 3:
-		dst[2] = byte((val >> 8) & 0xFF)
-		fallthrough
-	case 2:
-		dst[1] = byte((val >> 16) & 0xFF)
-		fallthrough
-	case 1:
-		dst[0] = byte((val >> 24) & 0xFF)
-	}
-	return m, 0
-}
-
-func (b *ascii85Codec) decode(dst, src []byte) (int, error) {
-	f := 0
-	t := 0
-	for len(src) > 0 {
-		if len(src) < 5 {
-			w, n := b.decodeChunk(dst, src)
-			if n > 0 {
-				return t, errors.Errorf(invalidInputFormat, n+f)
+	if flush {
+		nsrc = len(src)
+		if nb > 0 {
+			// The number of output bytes in the last fragment
+			// is the number of leftover input bytes - 1:
+			// the extra byte provides enough bits to cover
+			// the inefficiency of the encoding for the block.
+			if nb == 1 {
+				return 0, 0, errors.Errorf(invalieIllegalFormat, len(src))
 			}
-			return t + w, nil
-		}
-		_, n := b.decodeChunk(dst[:4], src[:5])
-		if n > 0 {
-			return t, errors.Errorf(invalidInputFormat, n+f)
-		} else {
-			t += 4
-			f += 5
-			src = src[5:]
-			dst = dst[4:]
+			for i := nb; i < 5; i++ {
+				// The short encoding truncated the output value.
+				// We have to assume the worst case values (digit 84)
+				// in order to ensure that the top bits are correct.
+				v = v*85 + 84
+			}
+			for i := 0; i < nb-1; i++ {
+				dst[ndst] = byte(v >> 24)
+				v <<= 8
+				ndst++
+			}
 		}
 	}
-	return t, nil
+	return
 }
 
-func (b *ascii85Codec) Decode(src []byte) ([]byte, error) {
-	dst := make([]byte, b.decodedLen(len(src)))
-	_, err := b.decode(dst, src)
-	return dst, err
+func (c *ascii85Codec) Decode(src []byte) ([]byte, error) {
+	dst := make([]byte, len(src))
+	n, _, err := c.decode(dst, src, true)
+	if err != nil {
+		return nil, err
+	}
+	return dst[:n], nil
 }
