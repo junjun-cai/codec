@@ -30,11 +30,11 @@ func NewCodec() base.IEncoding {
 	return &ascii85Codec{}
 }
 
-func (c *ascii85Codec) maxEncodeLen(n int) int {
+func (a *ascii85Codec) maxEncodeLen(n int) int {
 	return (n + 3) / 4 * 5
 }
 
-func (c *ascii85Codec) encode(dst, src []byte) int {
+func (a *ascii85Codec) encode(dst, src []byte) int {
 	if len(src) == 0 {
 		return 0
 	}
@@ -91,13 +91,13 @@ func (c *ascii85Codec) encode(dst, src []byte) int {
 	return n
 }
 
-func (c *ascii85Codec) Encode(src []byte) ([]byte, error) {
-	dst := make([]byte, c.maxEncodeLen(len(src)))
-	n := c.encode(dst, src)
+func (a *ascii85Codec) Encode(src []byte) ([]byte, error) {
+	dst := make([]byte, a.maxEncodeLen(len(src)))
+	n := a.encode(dst, src)
 	return dst[:n], nil
 }
 
-func (c *ascii85Codec) decode(dst, src []byte, flush bool) (ndst, nsrc int, err error) {
+func (a *ascii85Codec) decode(dst, src []byte, flush bool) (ndst, nsrc int, err error) {
 	var v uint32
 	var nb int
 	for i, b := range src {
@@ -153,9 +153,9 @@ func (c *ascii85Codec) decode(dst, src []byte, flush bool) (ndst, nsrc int, err 
 	return
 }
 
-func (c *ascii85Codec) Decode(src []byte) ([]byte, error) {
+func (a *ascii85Codec) Decode(src []byte) ([]byte, error) {
 	dst := make([]byte, len(src))
-	n, _, err := c.decode(dst, src, true)
+	n, _, err := a.decode(dst, src, true)
 	if err != nil {
 		return nil, err
 	}
