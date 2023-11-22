@@ -154,7 +154,7 @@ func (a *ascii85Codec) decode(dst, src []byte, flush bool) (ndst, nsrc int, err 
 }
 
 func (a *ascii85Codec) Decode(src []byte) ([]byte, error) {
-	dst := make([]byte, len(src))
+	dst := make([]byte, 4*len(src))
 	n, _, err := a.decode(dst, src, true)
 	if err != nil {
 		return nil, err
