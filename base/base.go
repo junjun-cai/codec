@@ -39,7 +39,7 @@ func HasRepeatElem[T comparable](array []T) bool {
 	for _, v := range array {
 		mp[v] = struct{}{}
 	}
-	return len(mp) == len(array)
+	return len(mp) != len(array)
 }
 
 func IsIllegalCharacter(c rune) bool {
