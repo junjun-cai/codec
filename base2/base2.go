@@ -42,7 +42,7 @@ func NewCodec(encoder string) (base.IEncoding, error) {
 	if len(encoder) != stdEncoderSize {
 		return nil, errEncoderSize
 	}
-	if base.HasRepeatElem(base.StringToBytes(encoder)) {
+	if encoder[0] == encoder[1] {
 		return nil, errEncoderRepeatCharacter
 	}
 	b := &base2Codec{decodeMap: make(map[byte]int, stdEncoderSize)}
@@ -51,8 +51,8 @@ func NewCodec(encoder string) (base.IEncoding, error) {
 			return nil, errEncoderCharacter
 		}
 		b.decodeMap[byte(v)] = k
+		b.encodeMap[k] = byte(v)
 	}
-	copy(b.encodeMap[:], encoder)
 	return b, nil
 }
 
@@ -91,12 +91,14 @@ func (b *base2Codec) decode(dst, src []byte) error {
 	id := 0
 	var val byte = 0
 	for k, v := range src {
-		if v != b.encodeMap[0] && v != b.encodeMap[1] {
+		elem, ok := b.decodeMap[v]
+		if !ok {
 			return errors.Errorf(errEncodedText, v, k)
 		}
+
 		lRsh := 7 - k%8
 		if lRsh >= 0 {
-			val |= byte(b.decodeMap[v] << lRsh)
+			val |= byte(elem << lRsh)
 		}
 		if lRsh == 0 {
 			dst[id] = val
@@ -108,7 +110,8 @@ func (b *base2Codec) decode(dst, src []byte) error {
 }
 
 func (b *base2Codec) Decode(src []byte) ([]byte, error) {
-	dst := make([]byte, b.decodeLen(len(src)))
-	err := b.decode(dst, src)
+	pureSrc := base.TrimNewLines(src)
+	dst := make([]byte, b.decodeLen(len(pureSrc)))
+	err := b.decode(dst, pureSrc)
 	return dst, err
 }
