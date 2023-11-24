@@ -22,16 +22,18 @@ import (
 const (
 	stdEncoder     = "01"
 	stdEncoderSize = 2
+	stdBlockLen    = 8
 )
 
 var (
-	StdCodec, _               = NewCodec(stdEncoder)
 	errEncoderSize            = errors.New("codec/base2: encoding alphabet is not 2-bytes long.")
 	errEncoderRepeatCharacter = errors.New("codec/base2: encoding alphabet has repeat character.")
 	errEncoderCharacter       = errors.New("codec/base2: encoding alphabet contains illegal character.")
 	errEncodedTextLength      = errors.New("codec/base2: decode data length is not multiple of 8.")
 	errEncodedText            = "codec/base2: decode data include not in encoder character: %+v, pos: %d."
 )
+
+var StdCodec, _ = NewCodec(stdEncoder)
 
 type base2Codec struct {
 	encodeMap [2]byte
@@ -79,39 +81,37 @@ func (b *base2Codec) Encode(src []byte) ([]byte, error) {
 
 func (b *base2Codec) decodeLen(n int) int { return n / 8 }
 
-func (b *base2Codec) decode(dst, src []byte) error {
-	length := len(src)
-	if length == 0 {
-		return nil
-	}
-	if length%8 > 0 {
-		return errEncodedTextLength
-	}
-
-	id := 0
-	var val byte = 0
+func (b *base2Codec) decode(dst, src []byte) (int, error) {
+	nDst, val := 0, 0
 	for k, v := range src {
 		elem, ok := b.decodeMap[v]
 		if !ok {
-			return errors.Errorf(errEncodedText, v, k)
+			return 0, errors.Errorf(errEncodedText, v, k)
 		}
 
-		lRsh := 7 - k%8
+		lRsh := 7 - k%stdBlockLen
 		if lRsh >= 0 {
-			val |= byte(elem << lRsh)
+			val |= elem << lRsh
 		}
+
 		if lRsh == 0 {
-			dst[id] = val
-			id += 1
+			dst[nDst] = byte(val)
+			nDst += 1
 			val = 0
 		}
 	}
-	return nil
+	return 0, nil
 }
 
 func (b *base2Codec) Decode(src []byte) ([]byte, error) {
-	pureSrc := base.TrimNewLines(src)
-	dst := make([]byte, b.decodeLen(len(pureSrc)))
-	err := b.decode(dst, pureSrc)
-	return dst, err
+	srcLen := len(src)
+	if srcLen == 0 {
+		return []byte{}, nil
+	}
+	if srcLen%stdBlockLen != 0 {
+		return nil, errEncodedTextLength
+	}
+	dst := make([]byte, b.decodeLen(len(src)))
+	n, err := b.decode(dst, src)
+	return dst[:n], err
 }

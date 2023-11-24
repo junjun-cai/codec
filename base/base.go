@@ -68,3 +68,7 @@ func TrimNewLines(src []byte) []byte {
 	}
 	return dst[:offset]
 }
+
+func IsNewLineChar(c byte) bool {
+	return c == '\r' || c == '\n'
+}
