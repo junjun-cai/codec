@@ -19,6 +19,8 @@ import "unsafe"
 const (
 	MinUseRune byte = ' '
 	MaxUseRune byte = '~'
+	StdPadding rune = '='
+	NotPadding rune = -1
 )
 
 type IEncoding interface {
@@ -42,6 +44,27 @@ func HasRepeatElem[T comparable](array []T) bool {
 	return len(mp) != len(array)
 }
 
+func HasRepeatChar(characters string) bool {
+	mp := make(map[rune]struct{})
+	for _, v := range characters {
+		mp[v] = struct{}{}
+	}
+	return len(mp) != len(characters)
+}
+
 func IsIllegalCharacter(c rune) bool {
 	return !(c >= rune(MinUseRune) && c <= rune(MaxUseRune))
+}
+
+func TrimNewLines(src []byte) []byte {
+	dst := make([]byte, len(src))
+	offset := 0
+	for _, v := range src {
+		if v == '\r' || v == '\n' {
+			continue
+		}
+		dst[offset] = v
+		offset++
+	}
+	return dst[:offset]
 }
