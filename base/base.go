@@ -14,7 +14,10 @@
 
 package base
 
-import "unsafe"
+import (
+	"encoding/binary"
+	"unsafe"
+)
 
 const (
 	MinUseRune byte = ' '
@@ -53,6 +56,9 @@ func HasRepeatChar(characters string) bool {
 }
 
 func IsIllegalCharacter(c rune) bool {
+	if c == NotPadding {
+		return true
+	}
 	return !(c >= rune(MinUseRune) && c <= rune(MaxUseRune))
 }
 
@@ -71,4 +77,10 @@ func TrimNewLines(src []byte) []byte {
 
 func IsNewLineChar(c byte) bool {
 	return c == '\r' || c == '\n'
+}
+
+func Uint16ToBytes(in uint16) []byte {
+	bytes := make([]byte, 2)
+	binary.BigEndian.PutUint16(bytes, in)
+	return bytes
 }

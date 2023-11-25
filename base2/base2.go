@@ -16,21 +16,13 @@ package base2
 
 import (
 	"github.com/caijunjun/codec/base"
-	"github.com/pkg/errors"
 )
 
 const (
+	codec          = "base2"
 	stdEncoder     = "01"
 	stdEncoderSize = 2
 	stdBlockLen    = 8
-)
-
-var (
-	errEncoderSize            = errors.New("codec/base2: encoding alphabet is not 2-bytes long.")
-	errEncoderRepeatCharacter = errors.New("codec/base2: encoding alphabet has repeat character.")
-	errEncoderCharacter       = errors.New("codec/base2: encoding alphabet contains illegal character.")
-	errEncodedTextLength      = errors.New("codec/base2: decode data length is not multiple of 8.")
-	errEncodedText            = "codec/base2: decode data include not in encoder character: %+v, pos: %d."
 )
 
 var StdCodec, _ = NewCodec(stdEncoder)
@@ -42,15 +34,15 @@ type base2Codec struct {
 
 func NewCodec(encoder string) (base.IEncoding, error) {
 	if len(encoder) != stdEncoderSize {
-		return nil, errEncoderSize
+		return nil, base.ErrEncoderSize(codec, stdEncoderSize)
 	}
 	if encoder[0] == encoder[1] {
-		return nil, errEncoderRepeatCharacter
+		return nil, base.ErrEncoderRepeatChar(codec)
 	}
 	b := &base2Codec{decodeMap: make(map[byte]int, stdEncoderSize)}
 	for k, v := range encoder {
 		if base.IsIllegalCharacter(v) {
-			return nil, errEncoderCharacter
+			return nil, base.ErrEncoderIllegalChar(codec)
 		}
 		b.decodeMap[byte(v)] = k
 		b.encodeMap[k] = byte(v)
@@ -86,7 +78,7 @@ func (b *base2Codec) decode(dst, src []byte) (int, error) {
 	for k, v := range src {
 		elem, ok := b.decodeMap[v]
 		if !ok {
-			return 0, errors.Errorf(errEncodedText, v, k)
+			return 0, base.ErrEncodedText(codec, v, k)
 		}
 
 		lRsh := 7 - k%stdBlockLen
@@ -104,14 +96,14 @@ func (b *base2Codec) decode(dst, src []byte) (int, error) {
 }
 
 func (b *base2Codec) Decode(src []byte) ([]byte, error) {
-	srcLen := len(src)
-	if srcLen == 0 {
+	size := len(src)
+	if size == 0 {
 		return []byte{}, nil
 	}
-	if srcLen%stdBlockLen != 0 {
-		return nil, errEncodedTextLength
+	if size%stdBlockLen != 0 {
+		return nil, base.ErrEncodedTextSize(codec, size, stdBlockLen)
 	}
-	dst := make([]byte, b.decodeLen(len(src)))
+	dst := make([]byte, b.decodeLen(size))
 	n, err := b.decode(dst, src)
 	return dst[:n], err
 }

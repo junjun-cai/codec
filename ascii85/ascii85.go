@@ -16,12 +16,14 @@ package ascii85
 
 import (
 	"github.com/caijunjun/codec/base"
-	"github.com/pkg/errors"
+)
+
+const (
+	codec = "ascii85"
 )
 
 var (
-	invalieIllegalFormat = "codec/asii85: illegal ascii85 data at input byte %+v."
-	StdCodec             = NewCodec()
+	StdCodec = NewCodec()
 )
 
 type ascii85Codec struct{}
@@ -114,7 +116,7 @@ func (a *ascii85Codec) decode(dst, src []byte, flush bool) (ndst, nsrc int, err 
 			v = v*85 + uint32(b-'!')
 			nb++
 		default:
-			return 0, 0, errors.Errorf(invalieIllegalFormat, i)
+			return 0, 0, base.ErrEncodedText(codec, b, i)
 		}
 		if nb == 5 {
 			nsrc = i + 1
@@ -135,7 +137,8 @@ func (a *ascii85Codec) decode(dst, src []byte, flush bool) (ndst, nsrc int, err 
 			// the extra byte provides enough bits to cover
 			// the inefficiency of the encoding for the block.
 			if nb == 1 {
-				return 0, 0, errors.Errorf(invalieIllegalFormat, len(src))
+				size := len(src)
+				return 0, 0, base.ErrEncodedText(codec, src[size-1], size-1)
 			}
 			for i := nb; i < 5; i++ {
 				// The short encoding truncated the output value.
