@@ -49,8 +49,8 @@ var (
 				"000010000010"),
 		},
 	}
-	codec, _ = NewCodec("AB")
-	tests2   = []struct {
+	codecAB, _ = NewCodec("AB")
+	tests2     = []struct {
 		name      string
 		plainText []byte
 		encodText []byte
@@ -121,7 +121,7 @@ func TestBase2Codec_Decode(t *testing.T) {
 func TestBase2Codec_Encode2(t *testing.T) {
 	for _, tt := range tests2 {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := codec.Encode(tt.plainText)
+			got, err := codecAB.Encode(tt.plainText)
 			if err != nil {
 				t.Errorf("base2.Encode() error = %v", err)
 				return
@@ -140,7 +140,7 @@ func TestBase2Codec_Encode2(t *testing.T) {
 func TestBase2Codec_Decode2(t *testing.T) {
 	for _, tt := range tests2 {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := codec.Decode(tt.encodText)
+			got, err := codecAB.Decode(tt.encodText)
 			if err != nil {
 				t.Errorf("base2.Decode() error = %v", err)
 				return
