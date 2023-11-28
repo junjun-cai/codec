@@ -44,7 +44,7 @@ var (
 	}
 )
 
-func TestBase2Codec_Encode(t *testing.T) {
+func TestBase4Codec_Encode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := StdCodec.Encode(tt.plainText)
@@ -59,6 +59,25 @@ func TestBase2Codec_Encode(t *testing.T) {
 			}
 			t.Logf(" got: %v", got)
 			t.Logf("want: %v", tt.encodText)
+		})
+	}
+}
+
+func TestBase4Codec_Decode(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := StdCodec.Decode(tt.encodText)
+			if err != nil {
+				t.Errorf("base4.Decode() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.plainText) {
+				t.Error("base4.Decode() failed!")
+			} else {
+				t.Log("base4.Decode() success!")
+			}
+			t.Logf(" got: %v", got)
+			t.Logf("want: %v", tt.plainText)
 		})
 	}
 }

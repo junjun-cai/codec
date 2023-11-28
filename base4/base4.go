@@ -83,7 +83,7 @@ func (b *base4Codec) decode(dst, src []byte) (int, error) {
 		if !ok {
 			return 0, base.ErrEncodedText(codec, v, k)
 		}
-		lRsh := 6 - k%stdBlock
+		lRsh := 6 - k%stdBlock*2
 		if lRsh >= 0 {
 			val |= elem << lRsh
 		}
