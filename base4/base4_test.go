@@ -42,6 +42,29 @@ var (
 				"1123213220020010233322022132203321322002001321223112023322022332111320320002002"),
 		},
 	}
+	codecr, _ = NewCodec("ABCD")
+	tests1    = []struct {
+		name      string
+		plainText []byte
+		encodText []byte
+	}{
+		{
+			name:      "base4-1",
+			plainText: []byte("this is encode."),
+			encodText: []byte("BDBABCCABCCBBDADACAABCCBBDADACAABCBBBCDCBCADBCDDBCBABCBBACDC"),
+		},
+		{
+			name:      "base4-2",
+			plainText: []byte("this is base4 encode."),
+			encodText: []byte("BDBABCCABCCBBDADACAABCCBBDADACAABCACBCABBDADBCBBADBAACAABCBBBCDCBCADBCDDBCBABCBBACDC"),
+		},
+		{
+			name:      "base4-3",
+			plainText: []byte("这是一次 base4 编码/解码测试。"),
+			encodText: []byte("DCCACDDDCBCBDCBCCBCACCDDDCBACDCACAAADCBCCCDACCABACAABCACBCABBDADBCBBADBAACAADCBDCD" +
+				"DACBBCDCBDCCAACAABACDDDCCACCBDCCADDCBDCCAACAABDCBCCDBBCACDDCCACCDDCBBBDCADCAAACAAC"),
+		},
+	}
 )
 
 func TestBase4Codec_Encode(t *testing.T) {
@@ -67,6 +90,44 @@ func TestBase4Codec_Decode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := StdCodec.Decode(tt.encodText)
+			if err != nil {
+				t.Errorf("base4.Decode() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.plainText) {
+				t.Error("base4.Decode() failed!")
+			} else {
+				t.Log("base4.Decode() success!")
+			}
+			t.Logf(" got: %v", got)
+			t.Logf("want: %v", tt.plainText)
+		})
+	}
+}
+
+func TestBase4CusCodec_Encode(t *testing.T) {
+	for _, tt := range tests1 {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := codecr.Encode(tt.plainText)
+			if err != nil {
+				t.Errorf("base4.Encode() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.encodText) {
+				t.Error("base4.Encode() failed!")
+			} else {
+				t.Log("base4.Encode() success!")
+			}
+			t.Logf(" got: %v", got)
+			t.Logf("want: %v", tt.encodText)
+		})
+	}
+}
+
+func TestBase4CusCodec_Decode(t *testing.T) {
+	for _, tt := range tests1 {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := codecr.Decode(tt.encodText)
 			if err != nil {
 				t.Errorf("base4.Decode() error = %v", err)
 				return
