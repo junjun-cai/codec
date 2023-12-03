@@ -47,3 +47,7 @@ func ErrPaddingIllegalChar(codec string) error {
 func ErrPaddingAlphabet(codec string) error {
 	return errors.Errorf("codec/%s: padding contained in alphabet.", codec)
 }
+
+func ErrDecodeSrcDataSize(codec string, size int) error {
+	return errors.Errorf("codec/%s: invalid decode src data size: %d.", codec, size)
+}
