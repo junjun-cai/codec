@@ -19,7 +19,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
+const (
 	StdEncoder     = "01234567"
 	stdEncoderSize = 8
 	codec          = "base8"
