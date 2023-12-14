@@ -37,8 +37,8 @@ var (
 		},
 		{
 			name:      "base16-3",
-			plainText: []byte("这是一次 base8 编码/解码测试。"),
-			encodText: []byte("e8bf99e698afe4b880e6aca120626173653820e7bc96e7a0812fe8a7a3e7a081e6b58be8af95e38082"),
+			plainText: []byte("这是一次 base16 编码/解码测试。"),
+			encodText: []byte("e8bf99e698afe4b880e6aca12062617365313620e7bc96e7a0812fe8a7a3e7a081e6b58be8af95e38082"),
 		},
 	}
 	codecr, _ = NewCodec("ABCDEFGHIJKLMNOP")
