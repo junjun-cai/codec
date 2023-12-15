@@ -41,6 +41,28 @@ var (
 			encodText: []byte("9HG6G86KG8AK7P5F6E29AC936KC24W3E6EP94EH5XY6CBGBGP6833BEP5GPSXWS9HEH5T25ER4W4Z"),
 		},
 	}
+	codecr, _ = NewCodec("0123456789ABCDEFGHIJKLMN")
+	tests1    = []struct {
+		name      string
+		plainText []byte
+		encodText []byte
+	}{
+		{
+			name:      "base24-1",
+			plainText: []byte("this is encode."),
+			encodText: []byte("A56C0FB2K701988LH3LN78JCIF2G"),
+		},
+		{
+			name:      "base24-2",
+			plainText: []byte("this is base24 encode."),
+			encodText: []byte("A56C0FB2K701988F6LGEL49IGE9D9GE2FHC8L4AG00"),
+		},
+		{
+			name:      "base24-3",
+			plainText: []byte("这是一次 base24 编码/解码测试。"),
+			encodText: []byte("KA9E9HED9H1DFGB7E63K12K5ED238L56E6GK86ABMNE24949GEH5546GB9GJMLJKA6ABC3B6I8L80"),
+		},
+	}
 )
 
 func TestBase24Codec_Encode(t *testing.T) {
@@ -66,6 +88,44 @@ func TestBase24Codec_Decode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := StdCodec.Decode(tt.encodText)
+			if err != nil {
+				t.Errorf("base24.Decode() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.plainText) {
+				t.Error("base24.Decode() failed!")
+			} else {
+				t.Log("base24.Decode() success!")
+			}
+			t.Logf(" got: %v", got)
+			t.Logf("want: %v", tt.plainText)
+		})
+	}
+}
+
+func TestBase24CusCodec_Encode(t *testing.T) {
+	for _, tt := range tests1 {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := codecr.Encode(tt.plainText)
+			if err != nil {
+				t.Errorf("base24.Encode() error = %v", err)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.encodText) {
+				t.Error("base24.Encode() failed!")
+			} else {
+				t.Log("base24.Encode() success!")
+			}
+			t.Logf(" got: %v", got)
+			t.Logf("want: %v", tt.encodText)
+		})
+	}
+}
+
+func TestBase24CusCodec_Decode(t *testing.T) {
+	for _, tt := range tests1 {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := codecr.Decode(tt.encodText)
 			if err != nil {
 				t.Errorf("base24.Decode() error = %v", err)
 				return
