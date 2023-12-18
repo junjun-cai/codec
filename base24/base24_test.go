@@ -78,7 +78,7 @@ func TestBase24Codec_Encode(t *testing.T) {
 			} else {
 				t.Log("base24.Encode() success!")
 			}
-			t.Logf(" got: %v", string(got))
+			t.Logf(" got: %v", got)
 			t.Logf("want: %v", tt.encodText)
 		})
 	}
