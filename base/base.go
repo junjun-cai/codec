@@ -57,9 +57,9 @@ func HasRepeatChar(characters string) bool {
 
 func IsIllegalCharacter(c rune) bool {
 	if c == NotPadding {
-		return true
+		return false
 	}
-	return !(c >= rune(MinUseRune) && c <= rune(MaxUseRune))
+	return c < rune(MinUseRune) || c > rune(MaxUseRune)
 }
 
 func TrimNewLines(src []byte) []byte {
