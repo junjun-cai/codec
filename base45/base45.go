@@ -187,7 +187,7 @@ func (b *base45Codec) decode(dst, src []byte) (int, error) {
 	}
 	if size%3 == 2 {
 		bytes := base.Uint16ToBytes(triplets[tripletsSize-1])
-		dst[nDst] = bytes[0]
+		dst[nDst] = bytes[1]
 		nDst += 1
 	} else {
 		bytes := base.Uint16ToBytes(triplets[tripletsSize-1])
