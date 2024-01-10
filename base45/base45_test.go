@@ -141,3 +141,35 @@ func TestBase45SCusCodec_Decode(t *testing.T) {
 		})
 	}
 }
+
+// go test -bench=BenchmarkBase45Codec_Encode -benchmem -count=3
+// goos: windows
+// goarch: amd64
+// pkg: github.com/caijunjun/codec/base45
+// cpu: 12th Gen Intel(R) Core(TM) i7-12650H
+// BenchmarkBase45Codec_Encode-16           4721821               241.4 ns/op           568 B/op         11 allocs/op
+// BenchmarkBase45Codec_Encode-16           5078631               236.9 ns/op           568 B/op         11 allocs/op
+// BenchmarkBase45Codec_Encode-16           5010950               240.7 ns/op           568 B/op         11 allocs/op
+// PASS
+// ok      github.com/caijunjun/codec/base45       4.527s
+func BenchmarkBase45Codec_Encode(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		StdCodec.Encode(testsStd[0].plainText)
+	}
+}
+
+// go test -bench=BenchmarkBase45Codec_Decode -benchmem -count=3
+// goos: windows
+// goarch: amd64
+// pkg: github.com/caijunjun/codec/base45
+// cpu: 12th Gen Intel(R) Core(TM) i7-12650H
+// BenchmarkBase45Codec_Decode-16           2407995               486.4 ns/op           369 B/op         12 allocs/op
+// BenchmarkBase45Codec_Decode-16           2422476               496.1 ns/op           369 B/op         12 allocs/op
+// BenchmarkBase45Codec_Decode-16           2371081               499.2 ns/op           369 B/op         12 allocs/op
+// PASS
+// ok      github.com/caijunjun/codec/base45       5.217s
+func BenchmarkBase45Codec_Decode(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		StdCodec.Decode(testsStd[0].encodText)
+	}
+}
