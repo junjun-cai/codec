@@ -102,7 +102,7 @@ func (b *base62Encoder) deocde(src []byte) ([]byte, error) {
 		}
 		c := 0
 		for j := cs - 1; j >= 0 && (v != 0 || c < rs); j-- {
-			v := stdEncoderSize * int(dst[j])
+			v += stdEncoderSize * int(dst[j])
 			dst[j] = byte(v % 256)
 			v /= 256
 			c++
