@@ -141,3 +141,35 @@ func TestBase62CusCodec_Decode(t *testing.T) {
 		})
 	}
 }
+
+// go test -bench=BenchmarkBase62Codec_Encode -benchmem -count=3
+// goos: windows
+// goarch: amd64
+// pkg: github.com/caijunjun/codec/base62
+// cpu: 12th Gen Intel(R) Core(TM) i7-12650H
+// BenchmarkBase62Codec_Encode-16           4216830               289.2 ns/op            24 B/op          1 allocs/op
+// BenchmarkBase62Codec_Encode-16           3998264               287.7 ns/op            24 B/op          1 allocs/op
+// BenchmarkBase62Codec_Encode-16           4219528               284.4 ns/op            24 B/op          1 allocs/op
+// PASS
+// ok      github.com/caijunjun/codec/base62       4.630s
+func BenchmarkBase62Codec_Encode(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		StdCodec.Encode(testsStd[0].plainText)
+	}
+}
+
+// go test -bench=BenchmarkBase62Codec_Decode -benchmem -count=3
+// goos: windows
+// goarch: amd64
+// pkg: github.com/caijunjun/codec/base62
+// cpu: 12th Gen Intel(R) Core(TM) i7-12650H
+// BenchmarkBase62Codec_Decode-16           3044401               348.6 ns/op            16 B/op          1 allocs/op
+// BenchmarkBase62Codec_Decode-16           2978906               378.0 ns/op            16 B/op          1 allocs/op
+// BenchmarkBase62Codec_Decode-16           3385266               337.8 ns/op            16 B/op          1 allocs/op
+// PASS
+// ok      github.com/caijunjun/codec/base62       5.081s
+func BenchmarkBase62Codec_Decode(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		StdCodec.Decode(testsStd[0].encodText)
+	}
+}
