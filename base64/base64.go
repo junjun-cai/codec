@@ -29,6 +29,8 @@ const (
 	errByteFormat  = "codec/base64: illegal base64 data at input byte, pos:%d."
 )
 
+var StdCodec, _ = NewCodec(stdEncoder, base.StdPadding)
+
 type base64Codec struct {
 	encodeMap [64]byte
 	decodeMap map[byte]int
@@ -146,8 +148,9 @@ func (b *base64Codec) decodeQuantum(dst, src []byte, si int) (nsi, n int, err er
 			break
 		}
 		in := src[si]
+		si++
 		out, ok := b.decodeMap[in]
-		if !ok {
+		if ok {
 			dbuf[j] = byte(out)
 			continue
 		}
@@ -247,7 +250,7 @@ func (b *base64Codec) decode(dst, src []byte) (n int, err error) {
 		tmp := src[si : si+4]
 		if dn, ok := b.assemble32(tmp); ok {
 			binary.BigEndian.PutUint32(dst[n:], dn)
-			n += 4
+			n += 3
 			si += 4
 		} else {
 			var ninc int
