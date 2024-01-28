@@ -31,6 +31,8 @@ const (
 
 var StdCodec, _ = NewCodec(stdEncoder, base.StdPadding)
 var UrlCodec, _ = NewCodec(urlEncoder, base.StdPadding)
+var StdRawCodec, _ = NewCodec(stdEncoder, base.NotPadding)
+var UrlRawCodec, _ = NewCodec(urlEncoder, base.NotPadding)
 
 type base64Codec struct {
 	encodeMap [64]byte
