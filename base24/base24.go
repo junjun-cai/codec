@@ -16,7 +16,7 @@ package base24
 
 import (
 	"encoding/binary"
-	"github.com/caijunjun/codec/base"
+	"github.com/junjun-cai/codec/base"
 	"github.com/pkg/errors"
 )
 

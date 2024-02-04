@@ -15,7 +15,7 @@
 package ascii85
 
 import (
-	"github.com/caijunjun/codec/base"
+	"github.com/junjun-cai/codec/base"
 )
 
 const (

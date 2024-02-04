@@ -1,4 +1,4 @@
-module github.com/caijunjun/codec
+module github.com/junjun-cai/codec
 
 go 1.21.3
 

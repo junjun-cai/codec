@@ -15,7 +15,7 @@
 package base4
 
 import (
-	"github.com/caijunjun/codec/base"
+	"github.com/junjun-cai/codec/base"
 )
 
 const (

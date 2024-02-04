@@ -15,7 +15,7 @@
 package base8
 
 import (
-	"github.com/caijunjun/codec/base"
+	"github.com/junjun-cai/codec/base"
 	"reflect"
 	"testing"
 )

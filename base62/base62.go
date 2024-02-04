@@ -15,7 +15,7 @@
 package base62
 
 import (
-	"github.com/caijunjun/codec/base"
+	"github.com/junjun-cai/codec/base"
 	"math"
 )
 
