@@ -14,7 +14,7 @@
 
 package base100
 
-import "github.com/caijunjun/codec/internal/errs"
+import "github.com/junjun-cai/codec/internal/errs"
 
 const (
 	codec = "base100"
