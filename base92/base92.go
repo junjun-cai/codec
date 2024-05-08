@@ -15,9 +15,9 @@
 package base92
 
 import (
-	"github.com/caijunjun/codec/base"
-	"github.com/caijunjun/codec/internal/errs"
-	"github.com/caijunjun/codec/internal/util"
+	"github.com/junjun-cai/codec/base"
+	"github.com/junjun-cai/codec/internal/errs"
+	"github.com/junjun-cai/codec/internal/util"
 	"math"
 	"math/big"
 )
