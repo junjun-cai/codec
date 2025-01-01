@@ -15,8 +15,8 @@
 package base92
 
 import (
-	"github.com/caijunjun/codec/base"
-	"github.com/caijunjun/codec/internal/basex"
+	"github.com/junjun-cai/codec/base"
+	"github.com/junjun-cai/codec/basex"
 )
 
 type base92Codecx struct {

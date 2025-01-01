@@ -15,14 +15,14 @@
 package codec
 
 import (
-	"github.com/caijunjun/codec/ascii85"
-	"github.com/caijunjun/codec/base"
-	"github.com/caijunjun/codec/base16"
-	"github.com/caijunjun/codec/base2"
-	"github.com/caijunjun/codec/base24"
-	"github.com/caijunjun/codec/base32"
-	"github.com/caijunjun/codec/base4"
-	"github.com/caijunjun/codec/base8"
+	"github.com/junjun-cai/codec/ascii85"
+	"github.com/junjun-cai/codec/base"
+	"github.com/junjun-cai/codec/base16"
+	"github.com/junjun-cai/codec/base2"
+	"github.com/junjun-cai/codec/base24"
+	"github.com/junjun-cai/codec/base32"
+	"github.com/junjun-cai/codec/base4"
+	"github.com/junjun-cai/codec/base8"
 )
 
 type Codec struct {
