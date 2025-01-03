@@ -23,6 +23,8 @@ import (
 	"github.com/junjun-cai/codec/base32"
 	"github.com/junjun-cai/codec/base4"
 	"github.com/junjun-cai/codec/base8"
+	"github.com/junjun-cai/codec/puny"
+	"github.com/junjun-cai/codec/quotedprintable"
 )
 
 type Codec struct {
@@ -161,5 +163,17 @@ func UseRawHexBase32() Codec {
 func UseCusBase32(encoder string, padding rune) Codec {
 	c := Codec{}
 	c.codec, c.err = base32.NewCodec(encoder, padding)
+	return c
+}
+
+func UsePuny() Codec {
+	c := Codec{}
+	c.codec, c.err = puny.NewCodec()
+	return c
+}
+
+func UseQuotedPrintable() Codec {
+	c := Codec{}
+	c.codec, c.err = quotedprintable.NewCodec()
 	return c
 }

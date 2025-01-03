@@ -19,9 +19,8 @@ import (
 )
 
 const (
-	codec      = "base32"
-	stdEncoder = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-
+	codec          = "base32"
+	stdEncoder     = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
 	stdEncoderSize = 32
 	hexEncoder     = "0123456789ABCDEFGHIJKLMNOPQRSTUV"
 )
